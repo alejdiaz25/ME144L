@@ -1,0 +1,287 @@
+\documentclass{article}
+
+\usepackage[english]{babel}
+\usepackage{float}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{verbatim}
+\captionsetup[figure]{justification=centering}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{\textbf{ME 144L LE 6: Strain Gauges and Force Measurement}}
+\author{Alejandro Diaz \\ TA: Gabrielle Naquila}
+\date{March 7, 2026}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+\section{Load Cell Calibration}
+% ============================================================
+
+\subsection{Calibration Procedure and Data}
+
+A strain-gauge mini load cell was calibrated by suspending known masses (0, 10, 20, 50, and 100\,g) and recording the corresponding integer output from the Arduino UNO. A linear regression was then performed to map raw counts to mass in grams. The calibration data are shown in Table 1.
+
+\begin{table}[H]
+    \centering
+    \caption{Raw Load Cell Readings vs. Calibration Masses}
+    \label{tab:cal_data}
+    \begin{tabular}{cc}
+        \toprule
+        \textbf{Mass [g]} & \textbf{Load Cell Reading [int counts]} \\
+        \midrule
+        0   & 416,888 \\
+        10  & 446,004 \\
+        20  & 475,515 \\
+        50  & 563,700 \\
+        100 & 710,520 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\noindent These values can be plotted into the \texttt{CalibrateLoadCell.py} program, where the mass readings are a function of raw integer counts read from the Arduino serial monitor. A linear regression (Mass $= m \cdot \text{LC} + b$) was used for the following result, where x represents the raw integer counts:
+
+\begin{equation}
+    \text{Mass [g]} = 3.40 \times 10^{-4} \cdot x - 141.878
+    \label{eq:cal_mass}
+\end{equation} 
+
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.65\linewidth}{\centering\vspace{2cm}[Image: load cell calibration regression.png]\vspace{2cm}}}
+    \caption{Load Cell Calibration Regression: Mass vs.\ Raw Count with Linear Fit}
+    \label{fig:cal_reg}
+\end{figure}
+
+\noindent With an $R^2$ value of $0.9999$, this indicates a strong linear fit. To express this relation in Newtons, Equation 1 is converted using $F = (m_\text{grams}) \times (1\,\text{kg}/1000\,\text{g}) \times g$, where g is the gravitational constant of $9.81\,\frac{\text{m}}{\text{s}^2}$.
+
+\begin{equation}
+    F = \left(3.40 \times 10^{-4} \cdot x - 141.878\right) \times 10^{-3} \times 9.81
+    \label{eq:cal_force}
+\end{equation}
+
+The sensitivity of the load cell system is defined as the force increment, per raw count increment. From the previously derived Force equation, the sensitivity equation will be simplified in the form of Newtons per count:
+
+\begin{equation}
+    S = 3.34 \times 10^{-6}\ \frac{\text{N}}{\text{count}}
+\end{equation}
+
+\noindent This sensitivity means a change of approximately $300{,}000$ counts per $1$\,N change.
+
+\subsection{Calibration Verification}
+
+The calibration was verified by placing the 50\,g, 100\,g, and 200\,g reference weights on the load cell and confirming the readout after applying the calibrated load cell mass equation. The results from the table below agree with the expected gravitational force of $m \cdot g = 0.09994 \times 9.81 = 0.980$\,N, a percent error of less than $0.5\%$. This confirms the calibration equation is valid over the measured range and that the sensor linearity is excellent.
+
+\begin{table}[h]
+    \centering
+    \caption{Calibration Verification Data}
+    \label{tab:calibration_verification}
+    \begin{tabular}{cccc}
+        \toprule
+        \textbf{Actual Mass (g)} & \textbf{Int Reading} & \textbf{Measured Mass (g)} & \textbf{Percent Error} \\
+        \midrule
+        50  & 563,628   & 49.755     & 0.490\% \\
+        100 & 710,821   & 99.800     & 0.200\% \\
+        200 & 1,003,404 & 199.278  & 0.361\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+% ============================================================
+\section{Bungee Cord Stiffness Characterization}
+% ============================================================
+
+\subsection{Force vs.\ Displacement Measurement}
+
+The bungee cord was stretched in $10$\,mm increments from $0$ to $120$\,mm, and the corresponding load cell integer output was recorded at each displacement. Equation 2 for solving calibrated force was then applied to convert the counts to Newtons. The resulting force-displacement data are tabulated in Table 2 and plotted in Figure 3.
+
+\begin{table}[H]
+    \centering
+    \caption{Calibrated Bungee Cord Force vs.\ Stretch Data}
+    \label{tab:bungee_data}
+    \begin{tabular}{ccc}
+        \toprule
+        \textbf{Stretch [mm]} & \textbf{LC Reading [int]} & \textbf{Force [N]} \\
+        \midrule
+        0   & 507,386   & 0.30 \\
+        10  & 1,357,956 & 3.14 \\
+        20  & 1,600,443 & 3.95 \\
+        30  & 1,748,936 & 4.44 \\
+        40  & 1,887,860 & 4.90 \\
+        50  & 2,002,329 & 5.29 \\
+        60  & 2,116,206 & 5.67 \\
+        70  & 2,183,967 & 5.89 \\
+        80  & 2,314,433 & 6.33 \\
+        90  & 2,366,345 & 6.50 \\
+        100 & 2,484,102 & 6.89 \\
+        110 & 2,566,164 & 7.17 \\
+        120 & 2,647,827 & 7.44 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.65\linewidth}{\centering\vspace{2cm}[Image: image.png]\vspace{2cm}}}
+    \caption{Bungee Cord Force vs.\ Stretch Plot}
+    \label{fig:bungee_stiff}
+\end{figure}
+
+\subsection{Discussion of Bungee Stiffness Behavior}
+
+The force-displacement curve in Figure 2 shows nonlinear behavior. At small displacements (0–10\,mm), the force changes drastically from approximately $0.30$\,N to $3.14$\,N, indicating a very high initial tangent stiffness. This is likely a result of how the experimentation was performed for finding the zero strain force applied, which was done with a 10g weight, leaving slack in the bungee cord. Beyond $10$\,mm, the curve becomes more gradual and approximately linear. For the purposes of determining stiffness (slope), it is best to omit the first data point. Note that including the first data point results in a stiffness of $46.37$ N/m. Using python \texttt{model.coef\_} and \texttt{model.score()} tools on the trimmed dataset yields the following:
+
+\begin{equation}
+    k_\text{bungee} = 36.65\ \text{N/m}, \quad R^2 = 0.977
+\end{equation}
+
+\begin{equation}
+    F = 36.653\cdot x + 3.25
+\end{equation}
+
+\noindent Note that the process for determining the zero strain applied force could be improved, however the data cleaning process allows for more stiffness values that are much more representative of system dynamics.
+
+% ============================================================
+\section{Dynamic Force Measurement of Small Oscillations}
+% ============================================================
+
+\subsection{Measured Force vs.\ Time}
+
+A nominal $100$\,g mass was attached to the bungee cord and stretched roughly $1/2$ inches for a small oscillation test. The load cell recorded force while the mass was allowed to oscillate freely. Figure 3 shows the measured force as a function of time. The mass is released at $t \approx 0$\,s, initiating oscillations that decay over a set 8 seconds. The equilibrium applied force force converges to approximately $0.983$\,N, consistent with $m \cdot g = 0.980$\,N. Below is the recorded calibrated masses of the bungee and weight:
+
+\begin{table}[H]
+    \centering
+    \caption{Calibrated Masses of Bungee Cord and 100g Load}
+    \label{tab:placehold}
+    \begin{tabular}{ccc}
+        \toprule
+        \textbf{Object} & \textbf{Symbol} & \textbf{Mass [g]} \\
+        \midrule
+        100g Mass   & $m_{mass}$   &    99.94\,g \\
+        Bungee  &   $m_{bungee}$    & 10.81\,g \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.65\linewidth}{\centering\vspace{2cm}[Image: Meas force lab 6.png]\vspace{2cm}}}
+    \caption{Measured Force vs.\ Time During Small Oscillations of the 100\,g Mass on the Bungee Cord}
+    \label{fig:force_meas}
+\end{figure}
+
+\noindent The measured force signal in Figure 3 represents underdamped oscillatory behavior following the initial disturbance. The oscillations decay to within $5\%$ of equilibrium by approximately $t \approx 2$\,s, reflecting the lightly damped system dynamics.
+
+The early cycles are visibly non-sinusoidal, which is likely due to the asymmetric restoring force of the bungee cord. On the upstroke, when the mass displaces above the equilibrium position, the cord gets slack and provides no restoring force, relying on just gravity. Tension is only recovered on the downstroke once the cord re-engages, producing an impulse rather than a smooth sinusoidal return. After about 1 second, these effects seem to dissipate, and amplitude decays and the mass remains within bungee tension, resulting in a more regular decaying sinusoidal motion.
+
+% ============================================================
+\section{Comparison of Measured Force and Acceleration-Derived Force}
+% ============================================================
+
+\subsection{Measurement Overview}
+
+For a second trial, an accelerometer was attached to the bottom of the 100g applied mass. In this experiment, both the load cell force and the IMU accelerometer Z-axis were recorded simultaneously. Multiple trials were done before the lab group converged on this solution, as we determined it to have the least lateral motion or rotation that would impact accelerometer and load cell readings. The acceleration-derived force is computed as:
+
+\begin{equation}
+    F_\text{acc}(t) = -m \cdot a_z(t)
+    \label{eq:facc}
+\end{equation}
+
+\noindent where $m = 99.94$\,g and $a_z$ is the Z-axis acceleration in m/s$^2$. The accelerometer raw counts are then converted using the spec for 2g testing:
+
+\begin{equation}
+    a_z\ [\text{m/s}^2] = z_a  \cdot (2)(0.061 \times 10^{-3})(9.81)
+\end{equation}
+
+\subsection{Results and Discussion}
+
+Figure 4 shows both $F_\text{meas}$ from the load cell and $F_\text{acc} = -ma_z$ on the same axes, along with the raw acceleration in the lower panel.
+
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.8\linewidth}{\centering\vspace{2cm}[Image: meas force w accel lab 6.png]\vspace{2cm}}}
+    \caption{Top: Measured Load Cell Force and Acceleration-Derived Force vs.\ Time. Bottom: Z-Axis Acceleration vs.\ Time}
+    \label{fig:force_accel}
+\end{figure}
+
+\noindent The two signals align closely in Figure 4, which is expected from Newton's 2nd Law in equation 6. Because the Accelerometer was oriented with the Z-axis normal facing down, in the steady state, $a_z \approx -g = -9.81$\,m/s$^2$, and $F_\text{acc} = -m(-g) = mg \approx 0.98$\,N, consistent with the load cell reading. Minor discrepancies between the load cell and accelerometer data could be the result to sensor noise, or differences in rotation and lateral movement of the mass over time. This sample test however was best evident of little swinging that could influence the recorded magnitude of acceleration in the Z-axis.
+
+% ============================================================
+\section{Damping Ratio Estimation via Logarithmic Decrement}
+% ============================================================
+
+\subsection{Method}
+
+The damping ratio $\zeta$ was estimated from the free oscillation force data using the logarithmic decrement method, which is identical to the equation applied in Lab 5 for the cantilever beam. The zero-mean force signal $F_\text{zm}(t) = F(t) - \bar{F}$ was formed using the steady-state mean as the equilibrium reference. Positive peaks were identified using \texttt{scipy.signal.find\_peaks}. The log decrement $\beta$ is the slope of $\ln(A_0/A_n)$ versus cycle number $n$. Pulling the derivations of the log decrement equation, the following equations for the amplitude ratio and damping ratio are shown below:
+
+\begin{equation}
+    \ln\!\left(\frac{A_0}{A_n}\right) = \frac{2\pi\zeta}{\sqrt{1-\zeta^2}} \cdot n = \beta \cdot n
+    \label{eq:logdec}
+\end{equation}
+
+\begin{equation}
+    \zeta = \frac{\beta}{\sqrt{4\pi^2 + \beta^2}}
+    \label{eq:zeta}
+\end{equation}
+
+\subsection{Results}
+
+Figure 5 shows the recorded data with detected peaks. These detected peaks are then transferred for calculation of Figure 6, which finds the logarithmic decrement data and linear regression. The damped period was estimated from the mean peak spacing over all 67 detected positive peaks.
+
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.8\linewidth}{\centering\vspace{2cm}[Image: Figure 2026-03-08 015059.png]\vspace{2cm}}}
+    \caption{Force vs. Time with Detected Peaks}
+    \label{fig:peaks}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.65\linewidth}{\centering\vspace{2cm}[Image: Figure 2026-03-08 013906.png]\vspace{2cm}}}
+    \caption{Log Decrement $\ln(A_0/A_n)$ vs.\ Cycles with Linear Regression. $\beta = 0.0485$, $R^2 = 0.858$.}
+    \label{fig:logdec}
+\end{figure}
+
+\noindent The resulting dynamic parameters are summarized in the table below
+
+\begin{table}[H]
+    \centering
+    \caption{Summary of Estimated Mass-Spring-Damper System Parameters from Log Decrement Analysis}
+    \label{tab:dynamic_params}
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+        \midrule
+        Log decrement (slope)                       & $\beta$              & $0.0485$ \\
+        Regression $R^2$                            & $R^2$                  & $0.858$ \\
+        Damping ratio                               & $\zeta$              & $7.714 \times 10^{-3}$ \\
+        Damped period                               & $T_d$                & $0.0743$\,s \\
+        Damped natural frequency                    & $\omega_d$           & $84.5561$\,rad/s ($13.4575$\,Hz) \\
+        Undamped natural frequency                  & $\omega_n$ & $84.5586$\,rad/s ($13.4579$\,Hz) \\
+        Effective spring stiffness ($k = \omega_n^2 m$) & $k$             & $714.6$\,N/m \\
+        Object mass                                        & $m_{mass}$                  & $99.94 \times 10^{-3}$\,kg \\
+        Bungee mass                                        & $m_{bungee}$                  & $10.81 \times 10^{-3}$\,kg \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Discussion}
+
+The damping ratio $\zeta \approx 7.7 \times 10^{-3}$ confirms the system is lightly damped, consistent with the slow decay visible in Figure 3. Since $\zeta \ll 1$, equation 8 gives $\omega_d \approx \omega_n$, which is shown by the equation for $\omega_d$ as a function of damping ratio and natural frequency:
+
+\begin{equation}
+    \omega_d = \omega_n\sqrt{1-\zeta^2} \approx \omega_n,\:\:\:\:\zeta \ll 1
+\end{equation}
+
+\noindent The dynamic stiffness back-calculated from $k = \omega_n^2 m = (84.56)^2 \times 0.09994 = 714.6$\,N/m is roughly $19\times$ the large-displacement static stiffness of $36.65$\,N/m from Section 2. This is not a contradiction. The $100$\,g mass hangs at equilibrium where $F = mg \approx 0.98$\,N, which from Table 2 falls between the $0$ and $10$\,mm stretch rows, squarely in the steep initial region of the bungee's force-displacement curve. The dynamic oscillations occur around that equilibrium point, so the system responds to the local tangent stiffness there rather than the average stiffness over the full $120$\,mm range.
+
+Even the $0$--$20$\,mm static slope of $182.28$\,N/m falls short of the dynamic value by a factor of roughly $4$. This suggests the equilibrium stretch is even tighter than that window captures, and that the bungee stiffness in the immediate vicinity of the $100$\,g hang point is closer to the steep $0$--$10$\,mm transition than the broader $0$--$20$\,mm fit indicates. The $R^2 = 0.858$ on the log-decrement regression reflects amplitude-dependent damping: the early high-amplitude cycles in Figure 5 decay faster than later ones, which violates the constant-$\zeta$ assumption of the method. The result is still a useful first-order estimate, but the true damping behavior is nonlinear.
+
+\end{document}
