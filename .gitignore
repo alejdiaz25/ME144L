@@ -12,6 +12,7 @@
 *.blg
 *.pdf
 !docs/**/*.pdf
+!Lab8/latex_claude_testing.pdf
 
 # macOS
 .DS_Store
