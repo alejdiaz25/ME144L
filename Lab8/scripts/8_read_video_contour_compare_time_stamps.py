@@ -22,8 +22,10 @@ def click_event(event, x, y, flags, param):
         cv2.imshow('image', img)
 
 # open video
-video_path = 'moving_object_with_ruler_x.mp4'
-df = pd.read_csv('moving_object_with_ruler_x.csv') # data with time stamps
+import os
+_DATA_DIR = '/Users/alejandrodiaz/Downloads/School/DSCLab-ME144L/Lab8/data'
+video_path = os.path.join(_DATA_DIR, 'moving_object_with_ruler_x.mp4')
+df = pd.read_csv(os.path.join(_DATA_DIR, 'moving_object_with_ruler_x.csv')) # data with time stamps
 ruler_length = 9.5 # inches of cropped width for #6
 mytime = df.iloc[:,0]
 
